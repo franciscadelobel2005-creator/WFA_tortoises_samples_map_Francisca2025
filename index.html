@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WFA Tortoise Sample Map - Francisca 2025</title>
+
+  <style>
+    html, body, #map { height: 100%; margin:0; padding:0; }
+    .legend { background:white; padding:6px; border-radius:6px; box-shadow:0 0 6px rgba(0,0,0,0.2);}
+  </style>
+
+  
+</head>
+<body>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // Alle 25 samples met geschatte coördinaten waar nodig
+const samples = [
+  {id:1,species:"Angulate tortoise",collector:"Tristan Daniels",location:"Pelican Park",date:"Unknown",lat:-34.081944,lon:18.537778,in_at: "",coords_visible:true},
+  {id:2,species:"Angulate tortoise",collector:"Tristan Daniels",location:"Pelican Park",date:"Unknown",lat:-34.081944,lon:18.537778,in_at: "",coords_visible:true},
+  {id:3,species:"Angulate tortoise",collector:"Tristan Daniels",location:"Pelican Park",date:"Unknown",lat:-34.081944,lon:18.537778,in_at: "",coords_visible:true},
+  {id:4,species:"Angulate tortoise",collector:"Tristan Daniels",location:"Pelican Park",date:"Unknown",lat:-34.081944,lon:18.537778,in_at: "",coords_visible:true},
+  {id:5,species:"Angulate tortoise",collector:"Tristan Daniels",location:"Pelican Park",date:"Unknown",lat:-34.081944,lon:18.537778,in_at: "",coords_visible:true},
+  {id:6,species:"Angulate tortoise",collector:"Dalton Gibbs",location:"Rietvlei, Table Bay Nature Reserve",date:"18/12/2024",lat:-33.84579,lon:18.50039,in_at:"",coords_visible:false},
+  {id:7,species:"Parrot-beak",collector:"Jacques van der Merwe",location:"Joostenberg Kloof",date:"28/11/2024",lat:-33.9100,lon:18.5500,in_at:"253491313",coords_visible:false},
+  {id:8,species:"Parrot-beak",collector:"Jacques van der Merwe",location:"Joostenberg Kloof",date:"29/11/2024",lat:-33.9100,lon:18.5510,in_at:"253491314",coords_visible:false},
+  {id:9,species:"Angulate tortoise",collector:"Jacques van der Merwe",location:"Joostenberg Kloof",date:"28/11/2024",lat:-33.9100,lon:18.5520,in_at:"253491314",coords_visible:false},
+  {id:10,species:"Angulate tortoise",collector:"Jacques van der Merwe",location:"Joostenberg Kloof",date:"28/11/2024",lat:-33.9110,lon:18.5500,in_at:"253491320",coords_visible:false},
+  {id:11,species:"Angulate tortoise",collector:"Jacques van der Merwe",location:"Joostenberg Kloof",date:"28/11/2024",lat:-33.9110,lon:18.5510,in_at:"253491312",coords_visible:false},
+  {id:12,species:"Angulate tortoise",collector:"Unknown",location:"Blaauwberg Nature Reserve",date:"17/03/2025",lat:-33.75276,lon:18.47155,in_at:"",coords_visible:true},
+  {id:13,species:"Angulate tortoise?",collector:"James Morton",location:"Pelican Park",date:"Unknown",lat:-34.077156,lon:18.537649,in_at:"",coords_visible:true},
+  {id:14,species:"Angulate tortoise",collector:"James Morton",location:"Pelican Park",date:"Unknown",lat:-34.075981,lon:18.533506,in_at:"",coords_visible:true},
+  {id:15,species:"Angulate tortoise?",collector:"Dalton Gibbs",location:"Unknown",date:"01/04/2025",lat:-33.788772,lon:18.515610,in_at:"",coords_visible:true},
+  {id:16,species:"Unknown",collector:"Dalton Gibbs",location:"Unknown",date:"01/04/2025",lat:-33.788820,lon:18.534584,in_at:"",coords_visible:true},
+  {id:17,species:"Unknown",collector:"Dalton Gibbs",location:"Unknown",date:"01/04/2025",lat:-33.788772,lon:18.515610,in_at:"",coords_visible:true},
+  {id:18,species:"Angulate tortoise?",collector:"Dalton Gibbs",location:"Unknown",date:"01/04/2025",lat:-33.788772,lon:18.515610,in_at:"",coords_visible:true},
+  {id:19,species:"Angulate tortoise?",collector:"Dalton Gibbs",location:"Unknown",date:"01/04/2025",lat:-33.788819,lon:18.534584,in_at:"",coords_visible:true},
+  {id:20,species:"Angulate tortoise?",collector:"Unknown",location:"Buffelsfontein Nature Reserve",date:"Unknown",lat:-33.265246,lon:18.221179,in_at:"",coords_visible:false},
+  {id:21,species:"Angulate tortoise?",collector:"Unknown",location:"Buffelsfontein Nature Reserve",date:"Unknown",lat:-33.265300,lon:18.221220,in_at:"",coords_visible:false},
+  {id:22,species:"Angulate tortoise?",collector:"Unknown",location:"Buffelsfontein Nature Reserve",date:"Unknown",lat:-33.265180,lon:18.221250,in_at:"",coords_visible:false},
+  {id:23,species:"Angulate tortoise?",collector:"Unknown",location:"Buffelsfontein Nature Reserve",date:"Unknown",lat:-33.265260,lon:18.221100,in_at:"",coords_visible:false},
+  {id:24,species:"Angulate tortoise?",collector:"Unknown",location:"Buffelsfontein Nature Reserve",date:"Unknown",lat:-33.265300,lon:18.221180,in_at:"",coords_visible:false},
+  {id:25,species:"Angulate tortoise?",collector:"Unknown",location:"Buffelsfontein Nature Reserve",date:"Unknown",lat:-33.265200,lon:18.221150,in_at:"",coords_visible:false}
+];
+
+const map = L.map('map').setView([-34.0, 18.53], 11);
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
+const markers = L.layerGroup();
+
+samples.forEach(s => {
+  if (typeof s.lat !== 'number' || typeof s.lon !== 'number' || isNaN(s.lat) || isNaN(s.lon)) return;
+  let popupContent = `<strong>Sample #${s.id}</strong><br>` +
+                     `<em>Species:</em> ${s.species}<br>` +
+                     `<em>Collector:</em> ${s.collector}<br>` +
+                     `<em>Location:</em> ${s.location}<br>` +
+                     `<em>Date:</em> ${s.date}<br>` +
+                     `<em>Latitude:</em> ${s.lat.toFixed(6)}°<br>` +
+                     `<em>Longitude:</em> ${s.lon.toFixed(6)}°`;
+  if(s.in_at) popupContent += `<br><em>INAT:</em> ${s.in_at}`;
+  
+  const marker = L.marker([s.lat, s.lon]).bindPopup(popupContent);
+  marker.addTo(markers);
+});
+
+markers.addTo(map);
+if (markers.getLayers().length > 0) map.fitBounds(markers.getBounds(), {padding:[40,40]});
+
+L.control.layers({ "OSM": osm }, { "Samples": markers }).addTo(map);
+const legend = L.control({position:'bottomright'});
+legend.onAdd = function () {
+    const div = L.DomUtil.create('div','legend');
+    div.innerHTML = '<strong>WFA Tortoise Samples</strong><br>Click markers for details.';
+    return div;
+};
+legend.addTo(map);
+  </script>
+</body>
+</html>
